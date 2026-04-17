@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta Ads — Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <h1>Meta Ads</h1>
+    <p>Protótipo Monolito — FastAPI</p>
+  </div>
+
+  <nav>
+    <div class="nav-group">Gestão</div>
+    <a data-route="accounts" href="#accounts">
+      <span class="icon">🏢</span> Contas
+    </a>
+
+    <div class="nav-group">Operações</div>
+    <a data-route="sync" href="#sync">
+      <span class="icon">⚡</span> Sync
+    </a>
+    <a data-route="jobs" href="#jobs">
+      <span class="icon">⚙️</span> Jobs
+    </a>
+
+    <div class="nav-group">Dados</div>
+    <a data-route="explorer" href="#explorer">
+      <span class="icon">🔍</span> Explorador
+    </a>
+
+    <!-- abas Criativos e Insights removidas da navegação (código JS mantido) -->
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="base-url-wrap">
+      <label>API Base URL</label>
+      <input id="base-url-input" type="text" placeholder="http://localhost:8000" />
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main ── -->
+<div id="main">
+  <div id="content"></div>
+</div>
+
+<!-- ── Toast ── -->
+<div id="toast-container"></div>
+<div id="global-tip"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

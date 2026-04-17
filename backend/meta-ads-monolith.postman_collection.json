@@ -1,0 +1,1194 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Meta Ads Monolith",
+    "description": "Coleção completa para o protótipo Meta Ads Monolith.\n\nVariáveis necessárias:\n- base_url: http://localhost:8000\n- account_id: act_XXXXXXXXXX\n- app_id, app_secret, access_token\n- campaign_id, adset_id, ad_id, creative_id (preenchidos manualmente ou por test scripts)\n- job_id (preenchido automaticamente pelos scripts de teste de Sync — Insights)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "account_id",
+      "value": "act_XXXXXXXXXX",
+      "type": "string"
+    },
+    {
+      "key": "app_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "app_secret",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "campaign_id",
+      "value": "",
+      "type": "string",
+      "description": "ID de campanha — usado nos endpoints de PATCH/DELETE e para criar adsets/ads vinculados"
+    },
+    {
+      "key": "adset_id",
+      "value": "",
+      "type": "string",
+      "description": "ID de conjunto de anúncios — usado nos endpoints de PATCH/DELETE e para criar ads vinculados"
+    },
+    {
+      "key": "ad_id",
+      "value": "",
+      "type": "string",
+      "description": "ID de anúncio — usado nos endpoints de PATCH/DELETE"
+    },
+    {
+      "key": "creative_id",
+      "value": "",
+      "type": "string",
+      "description": "ID de criativo — usado nos endpoints de PATCH/DELETE e para criar ads"
+    },
+    {
+      "key": "job_id",
+      "value": "",
+      "type": "string",
+      "description": "Preenchido automaticamente pelo test script dos endpoints de Sync — Insights"
+    }
+  ],
+  "item": [
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Listar contas acessíveis (sem salvar)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_id\": \"{{app_id}}\",\n  \"app_secret\": \"{{app_secret}}\",\n  \"access_token\": \"{{access_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/available",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "available"]
+            },
+            "description": "Valida credenciais e retorna lista de contas acessíveis. Não persiste nada no banco."
+          }
+        },
+        {
+          "name": "Cadastrar conta",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_id\": \"{{account_id}}\",\n  \"app_id\": \"{{app_id}}\",\n  \"app_secret\": \"{{app_secret}}\",\n  \"access_token\": \"{{access_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts",
+              "host": ["{{base_url}}"],
+              "path": ["accounts"]
+            },
+            "description": "Cadastra nova conta de anúncio. Valida token chamando GET /me/adaccounts e preenche name, currency, timezone_name, account_status."
+          }
+        },
+        {
+          "name": "Listar contas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts",
+              "host": ["{{base_url}}"],
+              "path": ["accounts"]
+            }
+          }
+        },
+        {
+          "name": "Detalhe da conta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar token da conta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"access_token\": \"{{access_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Deletar conta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}"]
+            },
+            "description": "Remove a conta e todos os dados vinculados (cascade). Retorna 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sync — Estrutural",
+      "description": "Endpoints síncronos — retornam imediatamente com contadores de registros sincronizados.",
+      "item": [
+        {
+          "name": "Sync campanhas",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/campaigns",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "campaigns"]
+            }
+          }
+        },
+        {
+          "name": "Sync conjuntos de anúncios",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/adsets",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "adsets"]
+            }
+          }
+        },
+        {
+          "name": "Sync anúncios",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/ads",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "ads"]
+            }
+          }
+        },
+        {
+          "name": "Sync criativos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/creatives",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "creatives"]
+            },
+            "description": "⚠️ Execute APÓS o sync de anúncios.\nAo final do sync, o campo `ad_id` de cada criativo é preenchido automaticamente via JOIN com a tabela de ads (ads.creative_id → creatives.ad_id)."
+          }
+        },
+        {
+          "name": "Sync completo (campaigns + adsets + ads + creatives)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/full?date_from=2026-01-01&date_to=2026-03-28",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "full"],
+              "query": [
+                { "key": "date_from", "value": "2026-01-01", "description": "Repassado para os jobs de insights" },
+                { "key": "date_to", "value": "2026-03-28", "description": "Repassado para os jobs de insights" }
+              ]
+            },
+            "description": "Executa sync estrutural completo em sequência e cria jobs de insights em background. Retorna job_ids para polling."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sync — Insights",
+      "description": "Endpoints assíncronos — criam SyncJob e retornam imediatamente com job_id. Use os endpoints de Jobs para polling de progresso.",
+      "item": [
+        {
+          "name": "Sync insights de campanhas — campanha específica",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/campaigns?campaign_id={{campaign_id}}&date_from=2026-01-01&date_to=2026-03-28&chunk_size_days=7",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "campaigns"],
+              "query": [
+                { "key": "campaign_id", "value": "{{campaign_id}}", "description": "⚠️ Recomendado: preencha o ID da campanha. Sem isso, sincroniza TODAS as campanhas da conta (mais lento)." },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "chunk_size_days", "value": "7" }
+              ]
+            },
+            "description": "Cria SyncJob para insights de uma campanha específica.\n\n⚠️ IMPORTANTE: Preencha `campaign_id` com o ID da campanha desejada. O sync por campanha específica é mais confiável e rápido do que tentar sincronizar toda a conta de uma vez.\n\nO test script salva o job_id automaticamente na variável de ambiente para usar no polling."
+          }
+        },
+        {
+          "name": "Sync insights de campanhas — todas (usar com cautela)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/campaigns?date_from=2026-01-01&date_to=2026-03-28&chunk_size_days=7",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "campaigns"],
+              "query": [
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "chunk_size_days", "value": "7" }
+              ]
+            },
+            "description": "Sincroniza insights de TODAS as campanhas da conta.\n\n⚠️ Pré-requisito: execute Sync Estrutural (campanhas) antes para popular o banco.\nO worker iterará sobre cada campanha do DB individualmente."
+          }
+        },
+        {
+          "name": "Sync insights de conjuntos — conjunto específico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/adsets?adset_id={{adset_id}}&date_from=2026-01-01&date_to=2026-03-28",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "adsets"],
+              "query": [
+                { "key": "adset_id", "value": "{{adset_id}}", "description": "⚠️ Recomendado: ID do conjunto de anúncios" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "chunk_size_days", "value": "7", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync insights de conjuntos — todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/adsets?date_from=2026-01-01&date_to=2026-03-28",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "adsets"],
+              "query": [
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync insights de anúncios — anúncio específico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/ads?ad_id={{ad_id}}&date_from=2026-01-01&date_to=2026-03-28",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "ads"],
+              "query": [
+                { "key": "ad_id", "value": "{{ad_id}}", "description": "⚠️ Recomendado: ID do anúncio" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync insights de anúncios — todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.job_id) {",
+                  "    pm.environment.set(\"job_id\", json.job_id);",
+                  "    console.log(\"job_id salvo:\", json.job_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/sync/{{account_id}}/insights/ads?date_from=2026-01-01&date_to=2026-03-28",
+              "host": ["{{base_url}}"],
+              "path": ["sync", "{{account_id}}", "insights", "ads"],
+              "query": [
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "description": "Gestão de SyncJobs. Use GET /{job_id} para polling de progresso.",
+      "item": [
+        {
+          "name": "Listar jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs?account_id={{account_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["jobs"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "status", "value": "running", "disabled": true, "description": "pending | running | completed | failed | paused | cancelled" },
+                { "key": "job_type", "value": "insights_campaigns", "disabled": true, "description": "insights_campaigns | insights_adsets | insights_ads | full_insights" },
+                { "key": "limit", "value": "20", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe do job (polling)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}"]
+            },
+            "description": "Endpoint principal para polling. Retorna progress_pct, cursor_date, records_synced e error_message se falhou."
+          }
+        },
+        {
+          "name": "Retomar job falho",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}/resume",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}", "resume"]
+            },
+            "description": "Retoma job em status 'failed' a partir do cursor_date. Zera retry_count e reinicia o worker."
+          }
+        },
+        {
+          "name": "Cancelar job",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/jobs/{{job_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["jobs", "{{job_id}}", "cancel"]
+            },
+            "description": "Sinaliza cancelamento. O worker verifica a flag a cada chunk e para na próxima iteração."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campanhas — Leitura",
+      "item": [
+        {
+          "name": "Listar campanhas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns"],
+              "query": [
+                { "key": "status", "value": "ACTIVE", "disabled": true, "description": "ACTIVE | PAUSED | DELETED | ARCHIVED" },
+                { "key": "limit", "value": "50", "disabled": true },
+                { "key": "offset", "value": "0", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe da campanha",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns", "{{campaign_id}}"]
+            },
+            "description": "Retorna campanha completa com:\n- adset_count, ad_count\n- adsets[]: id, name, status, effective_status\n  - ads[]: id, name, status, effective_status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Campanhas — Escrita",
+      "description": "Endpoints de criação, atualização e deleção de campanhas via Meta API.\n\nFluxo típico:\n1. POST → cria no Meta + salva local → guarde o campaign_id retornado\n2. PATCH → atualiza no Meta + atualiza local\n3. DELETE → marca DELETED no Meta + atualiza local (não remove do banco)",
+      "item": [
+        {
+          "name": "Criar campanha",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.campaign_id) {",
+                  "    pm.collectionVariables.set(\"campaign_id\", json.campaign_id);",
+                  "    console.log(\"campaign_id salvo:\", json.campaign_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Minha Campanha Teste\",\n  \"objective\": \"OUTCOME_TRAFFIC\",\n  \"special_ad_categories\": [],\n  \"status\": \"PAUSED\",\n  \"daily_budget\": 1000,\n  \"buying_type\": \"AUCTION\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns"]
+            },
+            "description": "Cria campanha no Meta e salva localmente. Retorna 201 com CampaignOut.\n\nObjectives válidos: OUTCOME_TRAFFIC, OUTCOME_ENGAGEMENT, OUTCOME_AWARENESS, OUTCOME_LEADS, OUTCOME_SALES, OUTCOME_APP_PROMOTION\n\nbid_strategy: LOWEST_COST_WITHOUT_CAP | LOWEST_COST_WITH_BID_CAP | COST_CAP\n\nO test script salva campaign_id na variável de coleção automaticamente."
+          }
+        },
+        {
+          "name": "Atualizar campanha",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Minha Campanha Teste — Atualizada\",\n  \"status\": \"PAUSED\",\n  \"daily_budget\": 2000\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns", "{{campaign_id}}"]
+            },
+            "description": "Atualiza campanha no Meta e sincroniza localmente.\n\nEnvie apenas os campos que deseja alterar (todos opcionais).\n\nRestrições Meta:\n- daily_budget e lifetime_budget não podem coexistir\n- status DELETED é irreversível\n- status ARCHIVED só pode ir para DELETED"
+          }
+        },
+        {
+          "name": "Mudar status da campanha",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PAUSED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns", "{{campaign_id}}"]
+            },
+            "description": "Altera apenas o status da campanha. Troque o valor conforme necessário.\n\nStatus válidos:\n- ACTIVE — ativar campanha\n- PAUSED — pausar campanha\n- ARCHIVED — arquivar (só pode ir para DELETED depois)\n- DELETED — deletar (irreversível)"
+          }
+        },
+        {
+          "name": "Deletar campanha",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/campaigns/{{campaign_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "campaigns", "{{campaign_id}}"]
+            },
+            "description": "Marca campanha como DELETED no Meta e atualiza status local. Retorna 204.\n\n⚠️ O registro permanece no banco com status=DELETED para preservar histórico de insights."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conjuntos — Leitura",
+      "item": [
+        {
+          "name": "Listar conjuntos de anúncios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets"],
+              "query": [
+                { "key": "campaign_id", "value": "{{campaign_id}}", "disabled": true, "description": "Filtrar por campanha" },
+                { "key": "status", "value": "ACTIVE", "disabled": true },
+                { "key": "limit", "value": "50", "disabled": true },
+                { "key": "offset", "value": "0", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe do conjunto",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets/{{adset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets", "{{adset_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conjuntos — Escrita",
+      "description": "Endpoints de criação, atualização e deleção de conjuntos de anúncios via Meta API.\n\n⚠️ Pré-requisito: a campanha deve estar sincronizada no banco local antes de criar um conjunto.",
+      "item": [
+        {
+          "name": "Criar conjunto de anúncios",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.adset_id) {",
+                  "    pm.collectionVariables.set(\"adset_id\", json.adset_id);",
+                  "    console.log(\"adset_id salvo:\", json.adset_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Conjunto Teste\",\n  \"campaign_id\": \"{{campaign_id}}\",\n  \"billing_event\": \"IMPRESSIONS\",\n  \"optimization_goal\": \"LINK_CLICKS\",\n  \"targeting\": {\n    \"geo_locations\": {\n      \"countries\": [\"BR\"]\n    },\n    \"age_min\": 18,\n    \"age_max\": 65\n  },\n  \"status\": \"PAUSED\",\n  \"daily_budget\": 500\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets"]
+            },
+            "description": "Cria conjunto de anúncios no Meta e salva localmente. Retorna 201 com AdSetOut.\n\nbilling_event: IMPRESSIONS | LINK_CLICKS | THRUPLAY | POST_ENGAGEMENT\noptimization_goal: LINK_CLICKS | REACH | IMPRESSIONS | LANDING_PAGE_VIEWS | LEAD_GENERATION\n\nRegras:\n- lifetime_budget exige end_time\n- bid_strategy=LOWEST_COST_WITH_BID_CAP exige bid_amount\n\nO test script salva adset_id automaticamente."
+          }
+        },
+        {
+          "name": "Atualizar conjunto de anúncios",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Conjunto Teste — Atualizado\",\n  \"daily_budget\": 800\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets/{{adset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets", "{{adset_id}}"]
+            },
+            "description": "Atualiza conjunto no Meta e sincroniza localmente.\n\nRestrições Meta:\n- Reduzir orçamento: novo valor deve ser ≥ 110% do valor já gasto\n- Conjunto ARCHIVED: só pode atualizar name e status (apenas para DELETED)"
+          }
+        },
+        {
+          "name": "Mudar status do conjunto",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PAUSED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets/{{adset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets", "{{adset_id}}"]
+            },
+            "description": "Altera apenas o status do conjunto. Troque o valor conforme necessário.\n\nStatus válidos:\n- ACTIVE — ativar conjunto\n- PAUSED — pausar conjunto\n- ARCHIVED — arquivar (restrição: só pode atualizar name e status após arquivar)\n- DELETED — deletar (irreversível)"
+          }
+        },
+        {
+          "name": "Deletar conjunto de anúncios",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/adsets/{{adset_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "adsets", "{{adset_id}}"]
+            },
+            "description": "Marca conjunto como DELETED no Meta e atualiza status local. Retorna 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anúncios — Leitura",
+      "item": [
+        {
+          "name": "Listar anúncios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads"],
+              "query": [
+                { "key": "adset_id", "value": "{{adset_id}}", "disabled": true, "description": "Filtrar por conjunto" },
+                { "key": "campaign_id", "value": "{{campaign_id}}", "disabled": true, "description": "Filtrar por campanha" },
+                { "key": "status", "value": "ACTIVE", "disabled": true },
+                { "key": "limit", "value": "50", "disabled": true },
+                { "key": "offset", "value": "0", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalhe do anúncio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads", "{{ad_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anúncios — Escrita",
+      "description": "Endpoints de criação, atualização e deleção de anúncios via Meta API.\n\n⚠️ Pré-requisito: adset e criativo devem estar sincronizados no banco local.",
+      "item": [
+        {
+          "name": "Criar anúncio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.ad_id) {",
+                  "    pm.collectionVariables.set(\"ad_id\", json.ad_id);",
+                  "    console.log(\"ad_id salvo:\", json.ad_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anúncio Teste\",\n  \"adset_id\": \"{{adset_id}}\",\n  \"creative_id\": \"{{creative_id}}\",\n  \"status\": \"PAUSED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads"]
+            },
+            "description": "Cria anúncio no Meta e salva localmente. Retorna 201 com AdOut.\n\n⚠️ O anúncio vai para revisão automática após criação — status efetivo inicial = PENDING_REVIEW.\n\nO test script salva ad_id automaticamente."
+          }
+        },
+        {
+          "name": "Atualizar anúncio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Anúncio Teste — Atualizado\",\n  \"status\": \"PAUSED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads", "{{ad_id}}"]
+            },
+            "description": "Atualiza anúncio no Meta e sincroniza localmente.\n\nCampos editáveis: name, status, creative_id, conversion_domain, ad_schedule_start_time, ad_schedule_end_time\n\nRestrições Meta:\n- adset_id não pode ser alterado\n- Anúncio ARCHIVED: só pode mudar name ou status para DELETED"
+          }
+        },
+        {
+          "name": "Mudar status do anúncio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"PAUSED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads", "{{ad_id}}"]
+            },
+            "description": "Altera apenas o status do anúncio. Troque o valor conforme necessário.\n\nStatus válidos:\n- ACTIVE — ativar anúncio\n- PAUSED — pausar anúncio\n- ARCHIVED — arquivar\n- DELETED — deletar (irreversível)\n\n⚠️ O status efetivo pode diferir — anúncio recém-criado fica em PENDING_REVIEW até ser aprovado."
+          }
+        },
+        {
+          "name": "Deletar anúncio",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/ads/{{ad_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "ads", "{{ad_id}}"]
+            },
+            "description": "Marca anúncio como DELETED no Meta e atualiza status local. Retorna 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Criativos — Leitura",
+      "item": [
+        {
+          "name": "Listar criativos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives"],
+              "query": [
+                { "key": "ad_id", "value": "{{ad_id}}", "disabled": true, "description": "Filtrar pelo anuncio vinculado" },
+                { "key": "limit", "value": "50", "disabled": true },
+                { "key": "offset", "value": "0", "disabled": true }
+              ]
+            },
+            "description": "Retorna criativos da conta. O campo `ad_id` indica qual anuncio usa este criativo (populado automaticamente pelo sync de criativos)."
+          }
+        },
+        {
+          "name": "Detalhe do criativo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives/{{creative_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives", "{{creative_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Criativos — Escrita",
+      "description": "Endpoints de criação, atualização e deleção de criativos via Meta API.\n\n⚠️ Meta deduplica criativos idênticos — se enviar um criativo já existente, retorna o ID existente sem criar novo. O upsert local trata esse caso automaticamente.",
+      "item": [
+        {
+          "name": "Criar criativo — post existente (object_story_id)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.creative_id) {",
+                  "    pm.collectionVariables.set(\"creative_id\", json.creative_id);",
+                  "    console.log(\"creative_id salvo:\", json.creative_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Criativo — Post Existente\",\n  \"object_story_id\": \"PAGE_ID_postID\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives"]
+            },
+            "description": "Cria criativo a partir de um post existente na página.\nobject_story_id formato: \"pageID_postID\" (ex: \"123456789_987654321\")"
+          }
+        },
+        {
+          "name": "Criar criativo — link inline (object_story_spec)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.creative_id) {",
+                  "    pm.collectionVariables.set(\"creative_id\", json.creative_id);",
+                  "    console.log(\"creative_id salvo:\", json.creative_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Criativo — Link Inline\",\n  \"object_story_spec\": {\n    \"page_id\": \"PAGE_ID_AQUI\",\n    \"link_data\": {\n      \"link\": \"https://exemplo.com.br\",\n      \"message\": \"Texto do anúncio aqui\",\n      \"name\": \"Título do anúncio\",\n      \"call_to_action\": {\n        \"type\": \"LEARN_MORE\",\n        \"value\": { \"link\": \"https://exemplo.com.br\" }\n      }\n    }\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives"]
+            },
+            "description": "Cria criativo inline com link_data.\n\ncall_to_action.type: LEARN_MORE | SHOP_NOW | SIGN_UP | DOWNLOAD | GET_QUOTE | CONTACT_US | WATCH_MORE | BOOK_TRAVEL | LISTEN_MUSIC\n\nO test script salva creative_id automaticamente."
+          }
+        },
+        {
+          "name": "Atualizar criativo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Criativo Renomeado\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives/{{creative_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives", "{{creative_id}}"]
+            },
+            "description": "Atualiza criativo no Meta e sincroniza localmente.\n\n⚠️ A Meta API só permite alterar `name` e `status` em criativos existentes.\nCampos visuais (imagem, vídeo, texto) não podem ser alterados — crie um novo criativo."
+          }
+        },
+        {
+          "name": "Deletar criativo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/{{account_id}}/creatives/{{creative_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["accounts", "{{account_id}}", "creatives", "{{creative_id}}"]
+            },
+            "description": "Deleta criativo no Meta e atualiza status local. Retorna 204.\n\n⚠️ Não é possível deletar criativos vinculados a anúncios ativos. Nesse caso, retorna 400 com descrição do erro."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Insights",
+      "description": "Leitura de insights já sincronizados. Suporta granularidade daily | weekly | monthly.\n\nRegras de agregação:\n- weekly/monthly: SUM impressions/reach/clicks/spend, AVG ctr/cpm/cpc/cpp\n- Campos JSONB (actions, etc.) retornam null em granularidade agregada",
+      "item": [
+        {
+          "name": "Insights de campanhas — daily",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/campaigns?account_id={{account_id}}&date_from=2026-03-01&date_to=2026-03-28&granularity=daily",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "campaigns"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-03-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "daily" },
+                { "key": "campaign_id", "value": "{{campaign_id}}", "disabled": true, "description": "Opcional — filtrar por campanha específica" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Insights de campanhas — weekly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/campaigns?account_id={{account_id}}&date_from=2026-01-01&date_to=2026-03-28&granularity=weekly",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "campaigns"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "weekly" }
+              ]
+            },
+            "description": "Agrega por semana ISO: SUM spend/clicks/impressions/reach, AVG ctr/cpm/cpc/cpp. date_start = segunda-feira da semana, date_stop = domingo."
+          }
+        },
+        {
+          "name": "Insights de campanhas — monthly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/campaigns?account_id={{account_id}}&date_from=2026-01-01&date_to=2026-03-28&granularity=monthly",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "campaigns"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "monthly" }
+              ]
+            },
+            "description": "Agrega por mês: SUM spend/clicks/impressions/reach, AVG ctr/cpm/cpc/cpp. date_start = 1º do mês, date_stop = último dia do mês."
+          }
+        },
+        {
+          "name": "Insights de conjuntos — daily",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/adsets?account_id={{account_id}}&date_from=2026-03-01&date_to=2026-03-28&granularity=daily",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "adsets"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-03-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "daily" },
+                { "key": "adset_id", "value": "{{adset_id}}", "disabled": true },
+                { "key": "campaign_id", "value": "{{campaign_id}}", "disabled": true }
+              ]
+            },
+            "description": "Inclui full_view_impressions e full_view_reach (exclusivos de adset insights)."
+          }
+        },
+        {
+          "name": "Insights de conjuntos — weekly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/adsets?account_id={{account_id}}&date_from=2026-01-01&date_to=2026-03-28&granularity=weekly",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "adsets"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "weekly" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Insights de anúncios — daily",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/ads?account_id={{account_id}}&date_from=2026-03-01&date_to=2026-03-28&granularity=daily",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "ads"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-03-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "daily" },
+                { "key": "ad_id", "value": "{{ad_id}}", "disabled": true },
+                { "key": "adset_id", "value": "{{adset_id}}", "disabled": true },
+                { "key": "campaign_id", "value": "{{campaign_id}}", "disabled": true }
+              ]
+            },
+            "description": "Inclui cost_per_unique_click (exclusivo de ad insights)."
+          }
+        },
+        {
+          "name": "Insights de anúncios — weekly",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/insights/ads?account_id={{account_id}}&date_from=2026-01-01&date_to=2026-03-28&granularity=weekly",
+              "host": ["{{base_url}}"],
+              "path": ["insights", "ads"],
+              "query": [
+                { "key": "account_id", "value": "{{account_id}}" },
+                { "key": "date_from", "value": "2026-01-01" },
+                { "key": "date_to", "value": "2026-03-28" },
+                { "key": "granularity", "value": "weekly" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
